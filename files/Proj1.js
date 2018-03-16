@@ -75,7 +75,7 @@ var lRectange = [vec2(0.0,0.0),vec2(0.4,0.0),vec2(0.4,0.1),vec2(0.0,0.1)]
 var AllShapes = [Triangle,Pentagon,Hexagon,Heptagon,Octagon,sTriangle,sSquare,rectangle,lRectange];
 
 var playerCoord = Square;
-var stillShapesCoord = randShapes(9);
+var stillShapesCoord = randShapes(5);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -84,14 +84,14 @@ function coordOffsetter(){
 	
 	//X-offset
 	var offset = Math.random();
-	while(offset >= 0.7) offset = Math.random();
+	while(offset >= 0.8) offset = Math.random();
 	
 	if(Math.floor(Math.random()*2) == 1){offset = -offset;}
 	temp.push(offset);
 	
 	//Y-offset
 	offset = Math.random();
-	while(offset >= 0.7) offset = Math.random();
+	while(offset >= 0.8) offset = Math.random();
 
 	if(Math.floor(Math.random()*2) == 1){offset = -offset;}	
 	temp.push(offset);
@@ -294,8 +294,8 @@ function drawPlayerShape() {
     gl.vertexAttribPointer( myPositionAttrib, 2, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( myPositionAttrib );
 	
-	clipX = clipX + (0.04*speed) * xtrans;
-	clipY = clipY + (0.04*speed) * ytrans;
+	clipX = clipX + (0.1*speed) * xtrans;
+	clipY = clipY + (0.1*speed) * ytrans;
 	gl.uniform2f(coordinatesUniform, clipX, clipY);
 		
 	gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
@@ -361,10 +361,10 @@ function randDirection(){
 
 //Modify this function.
 function interval(){
-	//Call randShapes(9) and assign to stillShapesCoord when you want to get a new set of non-moving shapes.
+	//Call randShapes(5) and assign to stillShapesCoord when you want to get a new set of non-moving shapes.
 	//9 is currently the most shapes that can be drawn, although frequently less than that will show on canvas. Don't know why.
 	
-	//stillShapesCoord = randShapes(9);
+	//stillShapesCoord = randShapes(5);
 }
 
 function render(){
