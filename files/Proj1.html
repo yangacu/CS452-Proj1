@@ -37,7 +37,7 @@
                 }
             </script>
             
-            <script type="x-shader/x-fragment" id="fragment-shader">
+            <script type="x-shader/x-fragment" id="yellow">
                 
                 void main() {
                     gl_FragColor = vec4( 1.0, 1.0, 0.0, 1.0 );
@@ -45,7 +45,25 @@
                 
             </script>
 			
-			<script type="x-shader/x-fragment" id="playerfragment-shader">
+			<script type="x-shader/x-fragment" id="white">
+                
+                void main() {
+                    gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 );
+                }
+                
+            </script>
+			
+			<script type="x-shader/x-fragment" id="black">
+                
+                void main() {
+                    gl_FragColor = vec4( 1.0, 0.0, 1.0, 1.0 );
+                }
+                
+            </script>
+			
+			
+			
+			<script type="x-shader/x-fragment" id="blue">
                 
                 void main() {
                     gl_FragColor = vec4( 0.0, 0.0, 1.0, 1.0 );

@@ -10,6 +10,10 @@ var xtrans;
 var ytrans;
 var speed = 0.1;
 var currentlyCollide;
+var winCondition = false;
+var numStillShapesOnCanvas = 5;
+var timeAlive = 0;
+var colors = ["yellow","black","white"];
 
 //////////////////////////////////////////////////////////////////////////
 //Shapes
@@ -76,6 +80,7 @@ var AllShapes = [Triangle,Pentagon,Hexagon,Heptagon,Octagon,sTriangle,sSquare,re
 
 var playerCoord = Square;
 var stillShapesCoord = randShapes(5);
+var stillShapesColors = randColors(5);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -122,6 +127,15 @@ function randShapes(num){
 		temp.push(randShape());
 	}
 	return temp;
+}
+
+function randColors(num){
+	var temp = [];
+	for(var i=0; i<num; i++){
+		var r = Math.floor(Math.random() * colors.length);
+		temp.push(colors[r]);
+	}
+	return temp;	
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -262,8 +276,9 @@ function init() {
 	render();
 }
 
-function drawStillShapes(shape,drawMode) {
-    secondShaderProgram = initShaders( gl, "stillShape-shader", "fragment-shader");
+function drawStillShapes(shape,drawMode,color) {
+	
+    secondShaderProgram = initShaders( gl, "stillShape-shader", color);
 	gl.useProgram(secondShaderProgram);
 
     secondBufferId = gl.createBuffer();
@@ -280,7 +295,8 @@ function drawStillShapes(shape,drawMode) {
 
 function drawPlayerShape() {
 	
-    myShaderProgram = initShaders( gl, "vertex-shader", "playerfragment-shader");
+	var test = "playerfragment-shader";
+    myShaderProgram = initShaders( gl, "vertex-shader", "blue");
 	gl.useProgram(myShaderProgram);
 
 	coordinatesUniform = gl.getUniformLocation(myShaderProgram,"coordinates");
@@ -296,12 +312,20 @@ function drawPlayerShape() {
 	
 	clipX = clipX + (0.1*speed) * xtrans;
 	clipY = clipY + (0.1*speed) * ytrans;
+	
+	//Bounds
+	if(clipX >= 1)clipX = 1;
+	else if(clipX <= -1)clipX = -1;
+	
+	if(clipY >= 1)clipY = 1;
+	else if(clipY <= -1)clipY = -1;
+	
 	gl.uniform2f(coordinatesUniform, clipX, clipY);
 		
 	gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
 	gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);	
 }
-
+/*
 function moveShape(){
 	var cx = event.clientX;
 	var cy = event.clientY;
@@ -311,8 +335,8 @@ function moveShape(){
 	gl.useProgram(myShaderProgram);
 	gl.uniform2f(coordinatesUniform, clipX, clipY);
 }
+*/
 
-//May want to disable this.
 function changeDir(event){
 	var theKeyCode = event.keyCode;
 	//up, down, left, right
@@ -359,36 +383,53 @@ function randDirection(){
 	}
 }
 
-//Modify this function.
-function interval(){
-	//Call randShapes(5) and assign to stillShapesCoord when you want to get a new set of non-moving shapes.
-	//9 is currently the most shapes that can be drawn, although frequently less than that will show on canvas. Don't know why.
-	
-	//stillShapesCoord = randShapes(5);
+function timer(){
+	timeAlive += 1;
 }
+
+function interval(){
+	stillShapesCoord = randShapes(5);
+	stillShapesColors = randColors(5);
+}
+
+function increSpd(){
+	speed += 0.1;
+}
+
+function win(){
+	winCondition = true;
+}
+
+setInterval(timer, 1000);
+setInterval(interval, 2000);
+setInterval(increSpd, 2000);
+setTimeout(win, 10000);
 
 function render(){
 	gl.clear( gl.COLOR_BUFFER_BIT );
 
 	drawPlayerShape();
-
-	for(var i=0; i<stillShapesCoord.length; i++){
-		drawStillShapes(stillShapesCoord[i],gl.TRIANGLE_FAN);
-	}
 	
 	var translateMatrix = mat3(1.0, 0.0, clipX,
 					 0.0, 1.0, clipY,
 					 0.0, 0.0, 1.0);
 	
 	//Update player coordinates
-	playerCoord = transformVec2Array(Square, translateMatrix);
+	playerCoord = transformVec2Array(Square, translateMatrix);	
+
+	for(var i=0; i<stillShapesCoord.length; i++){
+		drawStillShapes(stillShapesCoord[i],gl.TRIANGLE_FAN,stillShapesColors[i]);
+	}
 	
 	currentlyCollide = checkCollisionAll(playerCoord,stillShapesCoord);
 	console.log(currentlyCollide);
 	
+	
+	
 	if (!currentlyCollide){
-		requestAnimFrame(render);	
-	}else{
-		alert("Collision");
+		if(winCondition) alert("It's been 10 seconds. You win.");
+		else requestAnimFrame(render);
 	}
+	else alert("Collision. You lasted " + timeAlive + " seconds");
+	
 }
